@@ -1,22 +1,36 @@
 #include"../include/common.h"
 #include <cstdint>
 
-void WINAPI InitFeatures(LPVOID Buffer)
+// Initialize the features
+void InitializeFeatures(LPVOID buffer)
 {
-	NTWindowsHookEx::hk_InitFeatures(pDllData.base);
+    // TODO: Add a comment explaining what hk_InitFeatures does
+    NTWindowsHookEx::hk_InitFeatures(pDllData.base);
 }
 
-void WINAPI hk_Overlay(LPVOID Buffer)
+// Hook into the DirectX 11 renderer
+void OverlayHook(LPVOID buffer)
 {
-	bool init_hook = false;
-	do
-	{
-		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
-		{
-			kiero::bind(8, (void**)&pInterface->oPresent, hkPresent);
-			init_hook = true;
-		}
-	} while (!init_hook);
+    const int kMaxAttempts = 5; // Limit the number of attempts to initialize kiero
+    int attempts = 0;
+    bool initialized = false;
+
+    do {
+        // Attempt to initialize kiero
+        const auto status = kiero::init(kiero::RenderType::D3D11);
+        if (status != kiero::Status::Success) {
+            // TODO: Handle initialization errors appropriately
+            continue;
+        }
+
+        // Bind the Present function to the hkPresent function
+        if (kiero::bind(8, (void**)&pInterface->oPresent, hkPresent) == kiero::Status::Success) {
+            initialized = true;
+            break;
+        }
+
+        attempts++;
+    } while (!initialized && attempts < kMaxAttempts);
 }
 
 void Initialize()
