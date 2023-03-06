@@ -33,11 +33,24 @@ void OverlayHook(LPVOID buffer)
     } while (!initialized && attempts < kMaxAttempts);
 }
 
+// Initialize the program
 void Initialize()
 {
-	NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)hk_Overlay, NULL, NULL);
-	//NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)hk_ConsoleWindow, NULL, NULL);
-	NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)InitFeatures, NULL, NULL);
+    // Create the overlay thread
+    if (!NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)hk_Overlay, NULL, NULL))
+    {
+        // Handle error if the thread creation fails
+        MessageBox(NULL, "Failed to create overlay thread", "Error", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    // Create the features initialization thread
+    if (!NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)InitFeatures, NULL, NULL))
+    {
+        // Handle error if the thread creation fails
+        MessageBox(NULL, "Failed to create features initialization thread", "Error", MB_OK | MB_ICONERROR);
+        return;
+    }
 }
 
 BOOL APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
