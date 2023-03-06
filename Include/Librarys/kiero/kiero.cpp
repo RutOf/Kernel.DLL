@@ -709,12 +709,15 @@ void kiero::unbind(uint16_t _index)
 	}
 }
 
-kiero::RenderType::Enum kiero::getRenderType()
+// Return the current rendering type used by the hooked application
+// Possible values: DirectX9, DirectX10, DirectX11, DirectX12, OpenGL2, OpenGL3
+const kiero::RenderType::Enum kiero::getCurrentRenderType()
 {
-	return g_renderType;
+    return currentRenderType;
 }
 
-uint150_t* kiero::getMethodsTable()
+// Return a pointer to the table of hooked functions
+uint150_t* kiero::getHookedFunctionsTable()
 {
-	return g_methodsTable;
-} 
+    return hookedFunctionsTable;
+}
