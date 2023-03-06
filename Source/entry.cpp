@@ -40,13 +40,40 @@ void Initialize()
 	NTWindowsHookEx::NTWindowsCreateThreadEx((LPTHREAD_START_ROUTINE)InitFeatures, NULL, NULL);
 }
 
-BOOL APIENTRY DllMain(HINSTANCE hInstance, DWORD lpReasons, LPVOID Buffer)
+BOOL APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-	if (lpReasons == DLL_PROCESS_ATTACH)
-	{
-		DisableThreadLibraryCalls(hInstance);
-		Initialize();
-	}
+    switch (dwReason)
+    {
+        case DLL_PROCESS_ATTACH:
+        {
+            // Disable thread library calls for this DLL
+            DisableThreadLibraryCalls(hInstance);
 
-	return TRUE;
+            // Perform any necessary initialization tasks here
+            if (!Initialize())
+            {
+                // Initialization failed, unload the DLL
+                return FALSE;
+            }
+            break;
+        }
+
+        case DLL_PROCESS_DETACH:
+        {
+            // Perform any necessary cleanup tasks here
+            Cleanup();
+            break;
+        }
+
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
+        {
+            // Do nothing for thread-related reasons
+            break;
+        }
+    }
+
+    // Return TRUE to indicate success
+    return TRUE;
 }
+
